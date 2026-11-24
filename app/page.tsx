@@ -1,6 +1,7 @@
 import { loginAsDemo } from './actions/demo-auth'
 import Navbar from '@/components/Navbar'
-import { Zap, ShieldCheck, ArrowRight, Cloud, Sparkles } from 'lucide-react'
+import DemoLoginButton from '@/components/DemoLoginButton'
+import { Zap, ShieldCheck, Cloud, Sparkles } from 'lucide-react'
 
 export default function HomePage() {
   return (
@@ -41,13 +42,7 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
             <form action={loginAsDemo}>
-              <button
-                type="submit"
-                className="inline-flex items-center gap-2.5 btn-warm-cta text-white font-semibold px-8 py-3.5 rounded-2xl cursor-pointer text-base"
-              >
-                <span>Masuk dengan Akun Demo (1-Klik)</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+              <DemoLoginButton />
             </form>
           </div>
         </section>

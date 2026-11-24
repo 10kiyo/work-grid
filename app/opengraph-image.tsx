@@ -79,30 +79,32 @@ export default function Image() {
             display: 'flex',
             flexDirection: 'column',
             gap: '18px',
-            maxWidth: '920px',
+            maxWidth: '940px',
           }}
         >
           <div
             style={{
-              fontSize: '64px',
+              display: 'flex',
+              flexDirection: 'column',
+              fontSize: '62px',
               fontWeight: 800,
               color: '#ffffff',
-              lineHeight: 1.12,
+              lineHeight: 1.14,
               letterSpacing: '-0.03em',
             }}
           >
-            Kelola alur kerja tim secara{' '}
-            <span style={{ color: '#fde68a' }}>cerah & terstruktur.</span>
+            <span>Kelola alur kerja tim secara</span>
+            <span style={{ color: '#fde68a' }}>cerah &amp; terstruktur.</span>
           </div>
           <div
             style={{
+              display: 'flex',
               fontSize: '24px',
               color: 'rgba(255, 255, 255, 0.92)',
               lineHeight: 1.4,
             }}
           >
-            Kanban Board dengan Supabase Realtime, Optimistic Drag & Drop, dan
-            Multi-Tenant Row Level Security.
+            Kanban Board dengan Supabase Realtime, Optimistic Drag &amp; Drop, dan Multi-Tenant Row Level Security.
           </div>
         </div>
 
@@ -118,6 +120,7 @@ export default function Image() {
               <div
                 key={label}
                 style={{
+                  display: 'flex',
                   padding: '12px 24px',
                   borderRadius: '16px',
                   background: 'rgba(255, 255, 255, 0.92)',

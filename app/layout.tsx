@@ -13,12 +13,28 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://work-grid-liard.vercel.app'),
   title: {
     default: 'WorkGrid — Real-time Collaborative Kanban',
     template: '%s | WorkGrid',
   },
   description:
     'Platform manajemen proyek berbasis Kanban dengan sinkronisasi Supabase Realtime, optimistic drag-and-drop, dan isolasi keamanan multi-tenant Row Level Security.',
+  openGraph: {
+    title: 'WorkGrid — Real-time Collaborative Kanban',
+    description:
+      'Platform manajemen proyek berbasis Kanban dengan sinkronisasi Supabase Realtime, optimistic drag-and-drop, dan Row Level Security.',
+    url: 'https://work-grid-liard.vercel.app',
+    siteName: 'WorkGrid',
+    locale: 'id_ID',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'WorkGrid — Real-time Collaborative Kanban',
+    description:
+      'Platform manajemen proyek berbasis Kanban dengan Supabase Realtime & Row Level Security.',
+  },
 }
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {

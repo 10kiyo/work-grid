@@ -1,6 +1,6 @@
 import { loginAsDemo } from './actions/demo-auth'
-import Navbar from '@/components/Navbar'
-import DemoLoginButton from '@/components/DemoLoginButton'
+import Navbar from '@/components/layout/Navbar'
+import DemoLoginButton from '@/components/auth/DemoLoginButton'
 import { Zap, ShieldCheck, Cloud, Sparkles } from 'lucide-react'
 
 export default function HomePage() {

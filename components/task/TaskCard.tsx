@@ -1,7 +1,7 @@
 'use client'
 
 import { Draggable } from '@hello-pangea/dnd'
-import { GripVertical, Trash2 } from 'lucide-react'
+import { GripVertical, Trash2, Calendar } from 'lucide-react'
 
 export type Task = {
   id: string
@@ -10,6 +10,7 @@ export type Task = {
   description: string | null
   priority: 'low' | 'medium' | 'high'
   position: number
+  due_date: string | null
 }
 
 interface TaskCardProps {
@@ -25,12 +26,51 @@ const priorityStyles = {
   high: 'bg-rose-50 text-rose-700 border-rose-200',
 }
 
+export function getDueDateBadge(dueDate: string | null) {
+  if (!dueDate) return null
+  const dateObj = new Date(dueDate)
+  if (Number.isNaN(dateObj.getTime())) return null
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const target = new Date(dateObj)
+  target.setHours(0, 0, 0, 0)
+
+  const diffDays = Math.round(
+    (target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  )
+
+  const label = dateObj.toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'short',
+  })
+
+  if (diffDays < 0) {
+    return {
+      label: `Terlambat • ${label}`,
+      className: 'bg-rose-50 text-rose-600 border-rose-200',
+    }
+  }
+  if (diffDays === 0) {
+    return {
+      label: `Hari ini • ${label}`,
+      className: 'bg-amber-50 text-amber-700 border-amber-200',
+    }
+  }
+  return {
+    label,
+    className: 'bg-slate-50 text-slate-600 border-slate-200',
+  }
+}
+
 export default function TaskCard({
   task,
   index,
   onSelect,
   onDelete,
 }: TaskCardProps) {
+  const dueBadge = getDueDateBadge(task.due_date)
+
   return (
     <Draggable draggableId={task.id} index={index}>
       {(dragProvided, dragSnapshot) => (
@@ -75,7 +115,7 @@ export default function TaskCard({
             </p>
           )}
 
-          <div className="mt-3.5 pl-6 flex items-center justify-between">
+          <div className="mt-3.5 pl-6 flex items-center justify-between gap-2 flex-wrap">
             <span
               className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border capitalize ${
                 priorityStyles[task.priority]
@@ -83,6 +123,15 @@ export default function TaskCard({
             >
               {task.priority}
             </span>
+
+            {dueBadge && (
+              <span
+                className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border ${dueBadge.className}`}
+              >
+                <Calendar className="w-3 h-3" />
+                <span>{dueBadge.label}</span>
+              </span>
+            )}
           </div>
         </div>
       )}

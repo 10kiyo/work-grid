@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { connection } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
-import KanbanBoard from '@/components/KanbanBoard'
+import KanbanBoard from '@/components/board/KanbanBoard'
 
 export const instant = false
 
@@ -41,11 +41,11 @@ export default async function BoardPage() {
 
   const columnIds = columns?.map((c) => c.id) ?? []
 
-  const { data: tasks } =
+    const { data: tasks } =
     columnIds.length > 0
       ? await supabase
           .from('tasks')
-          .select('id, column_id, title, description, priority, position')
+          .select('id, column_id, title, description, priority, position, due_date')
           .in('column_id', columnIds)
           .order('position', { ascending: true })
       : { data: [] }

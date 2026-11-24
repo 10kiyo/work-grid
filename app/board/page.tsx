@@ -19,7 +19,7 @@ export default async function BoardPage() {
 
   const { data: workspaces } = await supabase
     .from('workspaces')
-    .select('id, name, boards(id, title)')
+    .select('id, name, invite_code, boards(id, title)')
     .limit(1)
 
   const workspace = workspaces?.[0]
@@ -33,6 +33,17 @@ export default async function BoardPage() {
     )
   }
 
+  // Cek peran user saat ini di workspace (owner / admin / member)
+  const { data: memberData } = await supabase
+    .from('workspace_members')
+    .select('role')
+    .eq('workspace_id', workspace.id)
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  const canManage =
+    memberData?.role === 'owner' || memberData?.role === 'admin'
+
   const { data: columns } = await supabase
     .from('columns')
     .select('id, title, position, board_id')
@@ -41,7 +52,7 @@ export default async function BoardPage() {
 
   const columnIds = columns?.map((c) => c.id) ?? []
 
-    const { data: tasks } =
+  const { data: tasks } =
     columnIds.length > 0
       ? await supabase
           .from('tasks')
@@ -52,9 +63,18 @@ export default async function BoardPage() {
 
   return (
     <KanbanBoard
+      workspaceId={workspace.id}
       workspaceName={workspace.name}
+      inviteCode={workspace.invite_code ?? null}
+      boardId={board.id}
       boardTitle={board.title}
-      userEmail={user.email ?? 'Demo User'}
+      canManage={canManage}
+      userEmail={
+        user.email ??
+        (user.user_metadata?.full_name
+          ? `${user.user_metadata.full_name} (Tamu)`
+          : 'Anggota Tamu')
+      }
       initialColumns={columns ?? []}
       initialTasks={tasks ?? []}
     />

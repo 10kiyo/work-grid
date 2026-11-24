@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd'
+import { createClient } from '@/utils/supabase/client'
 import Navbar from '@/components/layout/Navbar'
 import BoardToolbar, { BoardViewMode } from '@/components/board/BoardToolbar'
 import TaskCard, { Task } from '@/components/task/TaskCard'
@@ -12,23 +13,36 @@ import TaskCalendarView from '@/components/board/TaskCalendarView'
 import AiSummaryModal from '@/components/modals/AiSummaryModal'
 import { generateBoardSummaryAction } from '@/app/actions/ai'
 import { useBoardTasks, BoardColumn } from '@/hooks/useBoardTasks'
+import { Pencil } from 'lucide-react'
 
 interface KanbanBoardProps {
+  workspaceId: string
   workspaceName: string
+  inviteCode?: string | null
+  boardId: string
   boardTitle: string
+  canManage?: boolean
   userEmail: string
   initialColumns: BoardColumn[]
   initialTasks: Task[]
 }
 
 export default function KanbanBoard({
+  workspaceId,
   workspaceName,
+  inviteCode,
+  boardId,
   boardTitle,
+  canManage = false,
   userEmail,
   initialColumns,
   initialTasks,
 }: KanbanBoardProps) {
-  const [columns] = useState<BoardColumn[]>(initialColumns)
+  const supabase = createClient()
+  const [columns, setColumns] = useState<BoardColumn[]>(initialColumns)
+  const [editingColId, setEditingColId] = useState<string | null>(null)
+  const [editingColTitle, setEditingColTitle] = useState('')
+
   const [viewMode, setViewMode] = useState<BoardViewMode>('board')
   const [editingTask, setEditingTask] = useState<Task | null>(null)
 
@@ -52,6 +66,26 @@ export default function KanbanBoard({
     updateTask,
     deleteTask,
   } = useBoardTasks(columns, initialTasks, userEmail)
+
+  const handleSaveColumnTitle = async (col: BoardColumn) => {
+    setEditingColId(null)
+    const trimmed = editingColTitle.trim()
+    if (!trimmed || trimmed === col.title || !canManage) return
+
+    const previousColumns = columns
+    setColumns((prev) =>
+      prev.map((c) => (c.id === col.id ? { ...c, title: trimmed } : c))
+    )
+
+    const { error } = await supabase
+      .from('columns')
+      .update({ title: trimmed })
+      .eq('id', col.id)
+
+    if (error) {
+      setColumns(previousColumns)
+    }
+  }
 
   const handleOpenAiSummary = async () => {
     setAiModalOpen(true)
@@ -97,6 +131,10 @@ export default function KanbanBoard({
         variant="light"
         title={boardTitle}
         badge={workspaceName}
+        inviteCode={inviteCode}
+        canManage={canManage}
+        workspaceId={workspaceId}
+        boardId={boardId}
         userEmail={userEmail}
         showLogout
         isRealtimeConnected={isRealtimeConnected}
@@ -129,9 +167,42 @@ export default function KanbanBoard({
                     className="w-full md:flex-1 md:min-w-0 rounded-3xl p-4 flex flex-col gap-3 light-glass-panel"
                   >
                     <div className="flex items-center justify-between px-1.5 pt-0.5">
-                      <h2 className="font-bold text-sm tracking-tight text-slate-800">
-                        {col.title}
-                      </h2>
+                      {canManage && editingColId === col.id ? (
+                        <input
+                          type="text"
+                          value={editingColTitle}
+                          onChange={(e) => setEditingColTitle(e.target.value)}
+                          onBlur={() => handleSaveColumnTitle(col)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleSaveColumnTitle(col)
+                            if (e.key === 'Escape') setEditingColId(null)
+                          }}
+                          autoFocus
+                          className="font-bold text-sm text-slate-800 bg-white border border-blue-400 rounded-lg px-2 py-0.5 focus:outline-none w-full mr-2"
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={!canManage}
+                          onClick={() => {
+                            if (!canManage) return
+                            setEditingColId(col.id)
+                            setEditingColTitle(col.title)
+                          }}
+                          title={canManage ? 'Klik untuk ubah nama kolom' : undefined}
+                          className={`group inline-flex items-center gap-1.5 font-bold text-sm tracking-tight text-slate-800 ${
+                            canManage
+                              ? 'hover:text-blue-600 cursor-pointer'
+                              : 'cursor-default'
+                          }`}
+                        >
+                          <span>{col.title}</span>
+                          {canManage && (
+                            <Pencil className="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 transition" />
+                          )}
+                        </button>
+                      )}
+
                       <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100">
                         {colTasks.length}
                       </span>

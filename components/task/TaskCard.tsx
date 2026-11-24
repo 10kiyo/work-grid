@@ -1,7 +1,7 @@
 'use client'
 
 import { Draggable } from '@hello-pangea/dnd'
-import { GripVertical, Trash2, Calendar } from 'lucide-react'
+import { GripVertical, Trash2, Calendar, CheckSquare } from 'lucide-react'
 
 export type Task = {
   id: string
@@ -63,6 +63,24 @@ export function getDueDateBadge(dueDate: string | null) {
   }
 }
 
+function parseTaskDescription(description: string | null) {
+  if (!description) {
+    return { summary: '', completedCount: 0, totalChecklist: 0 }
+  }
+
+  const [rawSummary] = description.split('Langkah Kerja (AI):')
+  const checklistMatches = description.match(/-\s*\[([ xX])\]/g) ?? []
+  const completedCount = checklistMatches.filter((m) =>
+    /\[[xX]\]/.test(m)
+  ).length
+
+  return {
+    summary: rawSummary.trim(),
+    completedCount,
+    totalChecklist: checklistMatches.length,
+  }
+}
+
 export default function TaskCard({
   task,
   index,
@@ -70,6 +88,9 @@ export default function TaskCard({
   onDelete,
 }: TaskCardProps) {
   const dueBadge = getDueDateBadge(task.due_date)
+  const { summary, completedCount, totalChecklist } = parseTaskDescription(
+    task.description
+  )
 
   return (
     <Draggable draggableId={task.id} index={index}>
@@ -109,20 +130,31 @@ export default function TaskCard({
             </button>
           </div>
 
-          {task.description && (
+          {summary && (
             <p className="text-xs text-slate-500 mt-1.5 pl-6 line-clamp-2 leading-relaxed">
-              {task.description}
+              {summary}
             </p>
           )}
 
           <div className="mt-3.5 pl-6 flex items-center justify-between gap-2 flex-wrap">
-            <span
-              className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border capitalize ${
-                priorityStyles[task.priority]
-              }`}
-            >
-              {task.priority}
-            </span>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span
+                className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border capitalize ${
+                  priorityStyles[task.priority]
+                }`}
+              >
+                {task.priority}
+              </span>
+
+              {totalChecklist > 0 && (
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">
+                  <CheckSquare className="w-3 h-3" />
+                  <span>
+                    {completedCount}/{totalChecklist}
+                  </span>
+                </span>
+              )}
+            </div>
 
             {dueBadge && (
               <span

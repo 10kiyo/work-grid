@@ -20,6 +20,11 @@ export const metadata: Metadata = {
   },
   description:
     'Platform manajemen proyek berbasis Kanban dengan sinkronisasi Supabase Realtime, optimistic drag-and-drop, dan isolasi keamanan multi-tenant Row Level Security.',
+  icons: {
+    icon: '/logo-kiyo.webp?v=2',
+    shortcut: '/logo-kiyo.webp?v=2',
+    apple: '/logo-kiyo.webp?v=2',
+  },
   openGraph: {
     title: 'WorkGrid — Real-time Collaborative Kanban',
     description:
